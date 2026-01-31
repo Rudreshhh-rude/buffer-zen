@@ -1,0 +1,290 @@
+date,category,type,amount,description
+2025-01-26,Lifestyle,Expense,256,Zomato
+2025-01-27,Lifestyle,Expense,86,Stationery
+2025-01-29,Lifestyle,Expense,520,Auto Rickshaw
+2025-01-31,Lifestyle,Expense,577,Zomato
+2025-02-01,Fixed,Expense,6500,Hostel/Mess Fee
+2025-02-01,Lifestyle,Expense,488,Tea/Coffee
+2025-02-02,Lifestyle,Expense,195,Movie
+2025-02-03,Lifestyle,Expense,199,Movie
+2025-02-06,Lifestyle,Expense,408,Stationery
+2025-02-08,Lifestyle,Expense,544,Zomato
+2025-02-10,Lifestyle,Expense,172,Stationery
+2025-02-11,Lifestyle,Expense,177,Movie
+2025-02-13,Lifestyle,Expense,129,Tea/Coffee
+2025-02-14,Lifestyle,Expense,271,Zomato
+2025-02-16,Lifestyle,Expense,516,Zomato
+2025-02-17,Lifestyle,Expense,498,Tea/Coffee
+2025-02-18,Lifestyle,Expense,116,Stationery
+2025-02-19,Lifestyle,Expense,402,Tea/Coffee
+2025-02-21,Lifestyle,Expense,213,Movie
+2025-02-22,Lifestyle,Expense,338,Zomato
+2025-02-23,Lifestyle,Expense,44,Zomato
+2025-02-24,Lifestyle,Expense,80,Stationery
+2025-02-25,Lifestyle,Expense,115,Tea/Coffee
+2025-02-26,Lifestyle,Expense,566,Tea/Coffee
+2025-03-01,Fixed,Expense,6500,Hostel/Mess Fee
+2025-03-01,Lifestyle,Expense,256,Tea/Coffee
+2025-03-02,Lifestyle,Expense,163,Auto Rickshaw
+2025-03-03,Lifestyle,Expense,134,Zomato
+2025-03-04,Lifestyle,Expense,491,Auto Rickshaw
+2025-03-05,Lifestyle,Expense,491,Stationery
+2025-03-06,Lifestyle,Expense,437,Auto Rickshaw
+2025-03-09,Lifestyle,Expense,224,Tea/Coffee
+2025-03-12,Lifestyle,Expense,380,Auto Rickshaw
+2025-03-13,Freelance,Income,7500,Video Edit
+2025-03-13,Lifestyle,Expense,337,Zomato
+2025-03-14,Freelance,Income,4000,Video Edit
+2025-03-14,Lifestyle,Expense,93,Zomato
+2025-03-15,Lifestyle,Expense,387,Stationery
+2025-03-16,Lifestyle,Expense,276,Tea/Coffee
+2025-03-17,Lifestyle,Expense,584,Auto Rickshaw
+2025-03-19,Lifestyle,Expense,593,Auto Rickshaw
+2025-03-20,Lifestyle,Expense,451,Movie
+2025-03-21,Lifestyle,Expense,80,Movie
+2025-03-22,Lifestyle,Expense,275,Movie
+2025-03-23,Lifestyle,Expense,363,Movie
+2025-03-24,Lifestyle,Expense,594,Auto Rickshaw
+2025-03-25,Lifestyle,Expense,350,Zomato
+2025-03-26,Lifestyle,Expense,259,Tea/Coffee
+2025-03-27,Freelance,Income,4000,Logo Design
+2025-03-27,Lifestyle,Expense,202,Auto Rickshaw
+2025-03-28,Lifestyle,Expense,169,Movie
+2025-03-29,Freelance,Income,18000,Logo Design
+2025-03-29,Lifestyle,Expense,434,Stationery
+2025-03-30,Lifestyle,Expense,269,Zomato
+2025-04-01,Fixed,Expense,6500,Hostel/Mess Fee
+2025-04-02,Lifestyle,Expense,284,Tea/Coffee
+2025-04-03,Lifestyle,Expense,207,Stationery
+2025-04-04,Lifestyle,Expense,533,Tea/Coffee
+2025-04-06,Freelance,Income,18000,Video Edit
+2025-04-06,Lifestyle,Expense,551,Tea/Coffee
+2025-04-08,Lifestyle,Expense,57,Tea/Coffee
+2025-04-09,Lifestyle,Expense,75,Stationery
+2025-04-10,Lifestyle,Expense,436,Tea/Coffee
+2025-04-11,Lifestyle,Expense,418,Stationery
+2025-04-13,Lifestyle,Expense,251,Stationery
+2025-04-15,Lifestyle,Expense,62,Auto Rickshaw
+2025-04-16,Lifestyle,Expense,281,Zomato
+2025-04-21,Lifestyle,Expense,515,Tea/Coffee
+2025-04-22,Lifestyle,Expense,265,Movie
+2025-04-23,Lifestyle,Expense,502,Stationery
+2025-04-24,Lifestyle,Expense,411,Tea/Coffee
+2025-04-25,Lifestyle,Expense,205,Movie
+2025-04-28,Lifestyle,Expense,135,Auto Rickshaw
+2025-04-29,Lifestyle,Expense,159,Stationery
+2025-04-30,Lifestyle,Expense,268,Auto Rickshaw
+2025-05-01,Fixed,Expense,6500,Hostel/Mess Fee
+2025-05-01,Lifestyle,Expense,80,Zomato
+2025-05-02,Lifestyle,Expense,591,Stationery
+2025-05-03,Lifestyle,Expense,366,Auto Rickshaw
+2025-05-04,Lifestyle,Expense,126,Zomato
+2025-05-05,Lifestyle,Expense,485,Movie
+2025-05-06,Lifestyle,Expense,114,Tea/Coffee
+2025-05-07,Lifestyle,Expense,255,Stationery
+2025-05-08,Lifestyle,Expense,438,Auto Rickshaw
+2025-05-09,Lifestyle,Expense,465,Stationery
+2025-05-10,Lifestyle,Expense,398,Zomato
+2025-05-11,Lifestyle,Expense,395,Stationery
+2025-05-12,Lifestyle,Expense,295,Auto Rickshaw
+2025-05-13,Lifestyle,Expense,590,Movie
+2025-05-14,Lifestyle,Expense,91,Movie
+2025-05-16,Lifestyle,Expense,438,Auto Rickshaw
+2025-05-17,Lifestyle,Expense,352,Zomato
+2025-05-20,Lifestyle,Expense,140,Auto Rickshaw
+2025-05-21,Lifestyle,Expense,63,Movie
+2025-05-22,Lifestyle,Expense,575,Stationery
+2025-05-23,Lifestyle,Expense,251,Auto Rickshaw
+2025-05-25,Lifestyle,Expense,422,Tea/Coffee
+2025-05-26,Lifestyle,Expense,203,Stationery
+2025-05-27,Lifestyle,Expense,299,Tea/Coffee
+2025-05-28,Freelance,Income,4000,Social Media Mgmt
+2025-05-28,Lifestyle,Expense,596,Auto Rickshaw
+2025-05-29,Lifestyle,Expense,151,Movie
+2025-05-30,Lifestyle,Expense,272,Auto Rickshaw
+2025-06-01,Fixed,Expense,6500,Hostel/Mess Fee
+2025-06-01,Lifestyle,Expense,588,Zomato
+2025-06-02,Freelance,Income,7500,Social Media Mgmt
+2025-06-03,Lifestyle,Expense,548,Tea/Coffee
+2025-06-04,Lifestyle,Expense,213,Tea/Coffee
+2025-06-05,Lifestyle,Expense,187,Tea/Coffee
+2025-06-06,Lifestyle,Expense,430,Stationery
+2025-06-11,Lifestyle,Expense,437,Auto Rickshaw
+2025-06-12,Lifestyle,Expense,341,Auto Rickshaw
+2025-06-13,Lifestyle,Expense,233,Auto Rickshaw
+2025-06-14,Freelance,Income,18000,Social Media Mgmt
+2025-06-14,Lifestyle,Expense,63,Stationery
+2025-06-15,Lifestyle,Expense,341,Stationery
+2025-06-16,Lifestyle,Expense,521,Stationery
+2025-06-17,Lifestyle,Expense,351,Movie
+2025-06-19,Lifestyle,Expense,187,Tea/Coffee
+2025-06-23,Lifestyle,Expense,109,Stationery
+2025-06-25,Lifestyle,Expense,98,Movie
+2025-06-26,Lifestyle,Expense,333,Stationery
+2025-06-27,Lifestyle,Expense,204,Tea/Coffee
+2025-06-28,Lifestyle,Expense,281,Zomato
+2025-06-30,Lifestyle,Expense,372,Tea/Coffee
+2025-07-01,Fixed,Expense,6500,Hostel/Mess Fee
+2025-07-01,Lifestyle,Expense,127,Zomato
+2025-07-02,Lifestyle,Expense,450,Zomato
+2025-07-03,Lifestyle,Expense,547,Tea/Coffee
+2025-07-04,Lifestyle,Expense,490,Zomato
+2025-07-05,Lifestyle,Expense,579,Tea/Coffee
+2025-07-06,Lifestyle,Expense,57,Auto Rickshaw
+2025-07-07,Lifestyle,Expense,549,Zomato
+2025-07-08,Lifestyle,Expense,594,Movie
+2025-07-09,Lifestyle,Expense,223,Movie
+2025-07-10,Lifestyle,Expense,594,Tea/Coffee
+2025-07-11,Lifestyle,Expense,101,Zomato
+2025-07-12,Lifestyle,Expense,271,Tea/Coffee
+2025-07-13,Lifestyle,Expense,296,Tea/Coffee
+2025-07-14,Lifestyle,Expense,559,Stationery
+2025-07-15,Lifestyle,Expense,339,Auto Rickshaw
+2025-07-16,Lifestyle,Expense,184,Stationery
+2025-07-17,Lifestyle,Expense,432,Movie
+2025-07-18,Lifestyle,Expense,167,Movie
+2025-07-19,Lifestyle,Expense,548,Zomato
+2025-07-20,Freelance,Income,4000,Web Bug Fix
+2025-07-20,Lifestyle,Expense,126,Tea/Coffee
+2025-07-21,Lifestyle,Expense,450,Auto Rickshaw
+2025-07-22,Lifestyle,Expense,452,Stationery
+2025-07-23,Lifestyle,Expense,349,Zomato
+2025-07-24,Lifestyle,Expense,441,Tea/Coffee
+2025-07-25,Lifestyle,Expense,127,Tea/Coffee
+2025-07-26,Lifestyle,Expense,345,Tea/Coffee
+2025-07-28,Lifestyle,Expense,226,Movie
+2025-07-30,Lifestyle,Expense,80,Zomato
+2025-07-31,Lifestyle,Expense,529,Movie
+2025-08-01,Freelance,Income,4000,Social Media Mgmt
+2025-08-01,Fixed,Expense,6500,Hostel/Mess Fee
+2025-08-01,Lifestyle,Expense,564,Tea/Coffee
+2025-08-02,Lifestyle,Expense,105,Stationery
+2025-08-03,Lifestyle,Expense,87,Tea/Coffee
+2025-08-05,Lifestyle,Expense,336,Zomato
+2025-08-07,Lifestyle,Expense,361,Auto Rickshaw
+2025-08-08,Lifestyle,Expense,187,Zomato
+2025-08-09,Lifestyle,Expense,245,Auto Rickshaw
+2025-08-10,Lifestyle,Expense,591,Tea/Coffee
+2025-08-11,Lifestyle,Expense,458,Movie
+2025-08-12,Lifestyle,Expense,110,Movie
+2025-08-13,Lifestyle,Expense,157,Stationery
+2025-08-14,Lifestyle,Expense,60,Movie
+2025-08-15,Lifestyle,Expense,489,Zomato
+2025-08-16,Lifestyle,Expense,563,Movie
+2025-08-17,Lifestyle,Expense,126,Tea/Coffee
+2025-08-20,Lifestyle,Expense,329,Stationery
+2025-08-21,Lifestyle,Expense,547,Zomato
+2025-08-22,Lifestyle,Expense,386,Movie
+2025-08-23,Lifestyle,Expense,496,Stationery
+2025-08-26,Lifestyle,Expense,365,Movie
+2025-08-27,Lifestyle,Expense,270,Movie
+2025-08-28,Lifestyle,Expense,522,Stationery
+2025-08-30,Lifestyle,Expense,201,Auto Rickshaw
+2025-08-31,Lifestyle,Expense,441,Auto Rickshaw
+2025-09-01,Fixed,Expense,6500,Hostel/Mess Fee
+2025-09-01,Lifestyle,Expense,51,Movie
+2025-09-02,Lifestyle,Expense,99,Stationery
+2025-09-03,Lifestyle,Expense,45,Tea/Coffee
+2025-09-04,Lifestyle,Expense,452,Zomato
+2025-09-06,Lifestyle,Expense,297,Movie
+2025-09-07,Lifestyle,Expense,81,Movie
+2025-09-08,Lifestyle,Expense,290,Auto Rickshaw
+2025-09-10,Lifestyle,Expense,352,Tea/Coffee
+2025-09-12,Lifestyle,Expense,428,Tea/Coffee
+2025-09-13,Lifestyle,Expense,139,Stationery
+2025-09-15,Freelance,Income,4000,Video Edit
+2025-09-15,Lifestyle,Expense,595,Movie
+2025-09-17,Lifestyle,Expense,129,Auto Rickshaw
+2025-09-18,Lifestyle,Expense,310,Stationery
+2025-09-19,Lifestyle,Expense,406,Movie
+2025-09-20,Freelance,Income,7500,Video Edit
+2025-09-20,Lifestyle,Expense,260,Zomato
+2025-09-23,Lifestyle,Expense,289,Zomato
+2025-09-24,Lifestyle,Expense,458,Zomato
+2025-09-25,Lifestyle,Expense,291,Stationery
+2025-09-26,Lifestyle,Expense,184,Zomato
+2025-09-27,Lifestyle,Expense,304,Tea/Coffee
+2025-09-28,Lifestyle,Expense,573,Auto Rickshaw
+2025-09-29,Lifestyle,Expense,369,Tea/Coffee
+2025-09-30,Lifestyle,Expense,499,Stationery
+2025-10-01,Fixed,Expense,6500,Hostel/Mess Fee
+2025-10-02,Lifestyle,Expense,571,Auto Rickshaw
+2025-10-03,Lifestyle,Expense,180,Zomato
+2025-10-09,Lifestyle,Expense,570,Auto Rickshaw
+2025-10-10,Lifestyle,Expense,463,Tea/Coffee
+2025-10-12,Lifestyle,Expense,296,Movie
+2025-10-14,Lifestyle,Expense,196,Tea/Coffee
+2025-10-16,Lifestyle,Expense,212,Auto Rickshaw
+2025-10-17,Lifestyle,Expense,69,Stationery
+2025-10-21,Lifestyle,Expense,272,Tea/Coffee
+2025-10-22,Lifestyle,Expense,216,Stationery
+2025-10-24,Lifestyle,Expense,535,Movie
+2025-10-25,Lifestyle,Expense,371,Auto Rickshaw
+2025-10-27,Lifestyle,Expense,86,Movie
+2025-10-28,Lifestyle,Expense,120,Stationery
+2025-10-31,Lifestyle,Expense,122,Zomato
+2025-11-01,Fixed,Expense,6500,Hostel/Mess Fee
+2025-11-02,Lifestyle,Expense,324,Tea/Coffee
+2025-11-03,Lifestyle,Expense,92,Auto Rickshaw
+2025-11-04,Lifestyle,Expense,581,Auto Rickshaw
+2025-11-05,Lifestyle,Expense,507,Auto Rickshaw
+2025-11-06,Lifestyle,Expense,70,Auto Rickshaw
+2025-11-07,Lifestyle,Expense,115,Auto Rickshaw
+2025-11-08,Lifestyle,Expense,213,Zomato
+2025-11-09,Lifestyle,Expense,303,Tea/Coffee
+2025-11-11,Lifestyle,Expense,443,Tea/Coffee
+2025-11-12,Lifestyle,Expense,255,Movie
+2025-11-13,Lifestyle,Expense,320,Zomato
+2025-11-14,Lifestyle,Expense,446,Tea/Coffee
+2025-11-15,Freelance,Income,18000,Video Edit
+2025-11-15,Lifestyle,Expense,329,Stationery
+2025-11-16,Lifestyle,Expense,536,Tea/Coffee
+2025-11-17,Lifestyle,Expense,283,Zomato
+2025-11-18,Lifestyle,Expense,82,Tea/Coffee
+2025-11-19,Freelance,Income,7500,Social Media Mgmt
+2025-11-19,Lifestyle,Expense,352,Auto Rickshaw
+2025-11-20,Freelance,Income,12000,Logo Design
+2025-11-20,Lifestyle,Expense,387,Auto Rickshaw
+2025-11-21,Lifestyle,Expense,74,Stationery
+2025-11-22,Lifestyle,Expense,552,Auto Rickshaw
+2025-11-23,Lifestyle,Expense,284,Tea/Coffee
+2025-11-27,Lifestyle,Expense,529,Zomato
+2025-11-29,Lifestyle,Expense,522,Movie
+2025-11-30,Lifestyle,Expense,124,Stationery
+2025-12-01,Fixed,Expense,6500,Hostel/Mess Fee
+2025-12-03,Lifestyle,Expense,192,Tea/Coffee
+2025-12-04,Lifestyle,Expense,128,Tea/Coffee
+2025-12-05,Lifestyle,Expense,579,Stationery
+2025-12-06,Lifestyle,Expense,165,Auto Rickshaw
+2025-12-08,Lifestyle,Expense,253,Movie
+2025-12-11,Lifestyle,Expense,87,Stationery
+2025-12-12,Lifestyle,Expense,499,Tea/Coffee
+2025-12-13,Lifestyle,Expense,462,Auto Rickshaw
+2025-12-14,Lifestyle,Expense,188,Stationery
+2025-12-15,Lifestyle,Expense,202,Zomato
+2025-12-17,Lifestyle,Expense,577,Movie
+2025-12-18,Lifestyle,Expense,368,Tea/Coffee
+2025-12-19,Lifestyle,Expense,513,Stationery
+2025-12-21,Lifestyle,Expense,200,Zomato
+2025-12-22,Lifestyle,Expense,224,Auto Rickshaw
+2025-12-26,Freelance,Income,18000,Social Media Mgmt
+2025-12-27,Lifestyle,Expense,289,Auto Rickshaw
+2025-12-28,Lifestyle,Expense,97,Zomato
+2025-12-30,Freelance,Income,12000,Logo Design
+2025-12-30,Lifestyle,Expense,86,Movie
+2025-12-31,Lifestyle,Expense,398,Tea/Coffee
+2026-01-01,Fixed,Expense,6500,Hostel/Mess Fee
+2026-01-02,Lifestyle,Expense,265,Stationery
+2026-01-03,Freelance,Income,12000,Social Media Mgmt
+2026-01-03,Lifestyle,Expense,259,Zomato
+2026-01-04,Lifestyle,Expense,535,Tea/Coffee
+2026-01-05,Lifestyle,Expense,467,Tea/Coffee
+2026-01-06,Lifestyle,Expense,113,Tea/Coffee
+2026-01-07,Lifestyle,Expense,147,Tea/Coffee
+2026-01-10,Lifestyle,Expense,471,Tea/Coffee
+2026-01-11,Lifestyle,Expense,242,Zomato
+2026-01-12,Lifestyle,Expense,231,Stationery
+2026-01-13,Lifestyle,Expense,319,Stationery
+2026-01-16,Lifestyle,Expense,183,Movie
+2026-01-17,Lifestyle,Expense,222,Stationery
+2026-01-18,Lifestyle,Expense,532,Zomato
