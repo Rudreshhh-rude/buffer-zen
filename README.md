@@ -121,5 +121,5 @@ Distributed under the MIT License. See `LICENSE` for more information.
 ---
 
 <p align="center">
-  Built with 🖤 and ☕ by <b>Your Name</b>
+  Built with 🖤 and ☕ by <b>Rudresh/b>
 </p>
