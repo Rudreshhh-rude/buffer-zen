@@ -7,10 +7,14 @@ import {
     LogOut,
     Zap,
     Anchor,
-    Briefcase
+    Briefcase,
+    Bell,
+    Settings,
+    User
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Ticker from './Ticker';
+import Topbar from './components/Topbar';
 import SpendingGraph from './components/SpendingGraph';
 import ChaosControl from './components/ChaosControl';
 import GoalSetter from './components/GoalSetter';
@@ -18,12 +22,13 @@ import ActionZone from './components/ActionZone';
 import HistoryList from './components/HistoryList';
 import { getResilienceLabel, calculateStressMetrics } from './utils/financeHelpers';
 
-const API = import.meta.env.VITE_API_URL || "http://localhost:8000/api/v1";
+const API = "/api/v1";
 
 // --- MAIN DASHBOARD ---
-export default function Dashboard({ user, onSignOut }) {
+export default function Dashboard({ user, onSignOut, currentView, onViewChange }) {
     const [data, setData] = useState({
-        daily_limit: 0, survival_horizon: 0, current_balance: 0, daily_avg: 0, burn_rate: 0, resilience_score: 0
+        daily_limit: 0, survival_horizon: 0, current_balance: 0, daily_avg: 0,
+        burn_rate: 0, resilience_score: 0, limit_change_pct: 0, horizon_change: 0, resilience_change_pct: 0
     });
     const [investments, setInvestments] = useState(() => {
         const saved = localStorage.getItem('buffer_investments_v2');
@@ -124,175 +129,150 @@ export default function Dashboard({ user, onSignOut }) {
     };
 
     return (
-        <div className="min-h-screen bg-stone-950 text-stone-100 p-6 md:p-8 font-sans">
-            {/* HEADER */}
-            <header className="flex justify-between items-center py-4">
-                <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
-                    <h1 className="text-2xl font-black text-white tracking-tighter italic">BUFFER<span className="text-emerald-500">ZEN</span></h1>
-                    <p className="text-stone-600 text-xs mt-1">{user.email}</p>
-                </motion.div>
-                <div className="flex items-center gap-3">
-                    {error && <div className="text-red-400 text-[10px] font-black uppercase"><AlertCircle size={12} className="inline mr-1" /> {error}</div>}
-                    {uploadSuccess && <div className="text-emerald-400 text-[10px] font-black uppercase"><CheckCircle size={12} className="inline mr-1" /> {uploadSuccess}</div>}
-                    <button
-                        onClick={() => setScenarios(prev => ({ ...prev, show: !prev.show }))}
-                        className={`p-2 px-3 rounded-lg transition-all flex items-center gap-2 ${isStressed || scenarios.show ? 'bg-red-500/10 text-red-500 border border-red-500/50' : 'bg-stone-900 border border-stone-800 text-stone-500 hover:text-white'}`}
-                        title="Toggle Chaos Mode"
-                    >
-                        <Zap size={14} className={isStressed ? 'fill-current animate-pulse' : ''} />
-                        <span className="text-xs font-bold uppercase tracking-wider">Chaos Mode</span>
-                    </button>
-                    <button onClick={onSignOut} className="p-2 bg-stone-900 border border-stone-800 rounded-lg hover:bg-stone-800 transition-colors">
-                        <LogOut size={16} className="text-stone-400" />
-                    </button>
+        <div className="min-h-screen bg-buf-bg text-stone-100 font-sans">
+            <Topbar
+                currentView={currentView}
+                onViewChange={onViewChange}
+                onSignOut={onSignOut}
+                error={error}
+                uploadSuccess={uploadSuccess}
+                isStressed={isStressed}
+                onToggleChaos={() => setScenarios(prev => ({ ...prev, show: !prev.show }))}
+            />
+            <div className="p-6 md:p-8">
+
+                {/* TOP METRICS ROW */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                    {/* Safe-to-Spend Limit */}
+                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="glass-panel p-6 rounded-xl flex flex-col justify-between group hover:border-buf-cyan/30 transition-all cursor-default relative overflow-hidden">
+                        <div className="flex justify-between items-start mb-4">
+                            <div>
+                                <h3 className="text-[10px] text-stone-400 font-bold uppercase tracking-widest mb-2">Safe-to-Spend Limit</h3>
+                                <div className="flex items-baseline gap-2">
+                                    <span className="text-4xl font-black text-white tracking-tighter">₹{data.daily_limit}</span>
+                                    <span className={`text-[10px] font-black tracking-wider ${data.limit_change_pct >= 0 ? "text-buf-green" : "text-buf-red"}`}>
+                                        {data.limit_change_pct > 0 ? "+" : ""}{data.limit_change_pct}%~
+                                    </span>
+                                </div>
+                            </div>
+                            <div className="text-stone-700/50 group-hover:text-stone-600/50 transition-colors">
+                                <svg width="48" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="6" width="20" height="12" rx="2" /><circle cx="12" cy="12" r="2" /><path d="M6 12h.01M18 12h.01" /></svg>
+                            </div>
+                        </div>
+                        <p className="text-[9px] text-stone-500 font-bold uppercase tracking-widest mt-2">Adjusted for Projected Volatility</p>
+                    </motion.div>
+
+                    {/* Survival Horizon */}
+                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="glass-panel p-6 rounded-xl flex flex-col justify-between group hover:border-buf-cyan/30 transition-all cursor-default relative overflow-hidden">
+                        <div className="flex justify-between items-start mb-4">
+                            <div>
+                                <h3 className="text-[10px] text-buf-cyan font-bold uppercase tracking-widest mb-2">Survival Horizon</h3>
+                                <div className="flex items-baseline gap-2">
+                                    <span className="text-4xl font-black text-white tracking-tighter">{displayHorizon}</span>
+                                    <span className="text-[10px] text-stone-400 font-bold uppercase tracking-widest whitespace-nowrap">Days</span>
+                                    <span className={`text-[10px] font-black tracking-wider ${data.horizon_change >= 0 ? "text-buf-green" : "text-buf-red"}`}>
+                                        {data.horizon_change > 0 ? "+" : ""}{data.horizon_change}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="mt-2">
+                            {/* Progress Bar styled component */}
+                            <div className="h-1.5 w-full bg-stone-900 rounded-full overflow-hidden flex">
+                                <div className="h-full bg-buf-cyan" style={{ width: `${Math.min(100, Math.max(10, (displayHorizon / 365) * 100))}%` }}></div>
+                            </div>
+                            <p className="text-[9px] text-stone-500 font-bold uppercase tracking-widest mt-3">Estimated Runway Until Zero</p>
+                        </div>
+                    </motion.div>
+
+                    {/* Resilience Score */}
+                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} className="glass-panel p-6 rounded-xl flex flex-col justify-between group hover:border-buf-cyan/30 transition-all cursor-default relative overflow-hidden">
+                        <div className="flex justify-between items-start mb-4">
+                            <div>
+                                <h3 className="text-[10px] text-buf-cyan font-bold uppercase tracking-widest mb-2">Resilience Score</h3>
+                                <div className="flex items-baseline gap-2">
+                                    <span className="text-4xl font-black text-white tracking-tighter">{displayResilience}</span>
+                                    <span className="text-[12px] text-stone-500 font-bold tracking-widest">/100</span>
+                                    <span className={`text-[10px] font-black tracking-wider ${data.resilience_change_pct >= 0 ? "text-buf-green" : "text-buf-red"}`}>
+                                        {data.resilience_change_pct > 0 ? "+" : ""}{data.resilience_change_pct}%~
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="mt-2">
+                            {/* Progress Steps component */}
+                            <div className="flex gap-1 h-1.5 w-full">
+                                {[1, 2, 3, 4, 5].map((step) => (
+                                    <div key={step} className={`flex-1 rounded-sm ${step * 20 <= displayResilience ? 'bg-buf-green' : 'bg-stone-800'}`}></div>
+                                ))}
+                            </div>
+                            <p className="text-[9px] text-stone-500 font-bold uppercase tracking-widest mt-3">Financial Antifragility Index</p>
+                        </div>
+                    </motion.div>
                 </div>
-            </header>
 
-            {/* CHAOS CONTROL (Collapsible) */}
-            <motion.div
-                initial={false}
-                animate={{ height: scenarios.show ? 'auto' : 0, opacity: scenarios.show ? 1 : 0 }}
-                className="overflow-hidden mb-4"
-            >
-                <ChaosControl activeScenarios={scenarios} onToggle={(id) => setScenarios(prev => ({ ...prev, [id]: !prev[id] }))} />
-            </motion.div>
-
-            {/* ZONE 0: FINANCIAL CONFIGURATION (Always Visible) */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                {/* Anchor Input */}
-                <div className="bg-stone-900/40 p-4 rounded-2xl border border-stone-800 flex items-center justify-between group hover:border-stone-700 transition-all">
-                    <div className="flex items-center gap-3">
-                        <div className="bg-emerald-500/10 p-2 rounded-lg">
-                            <Anchor size={16} className="text-emerald-500" />
-                        </div>
-                        <div>
-                            <p className="text-[10px] text-stone-500 font-bold uppercase tracking-widest">Monthly Fixed Costs</p>
-                            <p className="text-xs text-emerald-500/50 font-mono">Real Anchor</p>
-                        </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <span className="text-stone-500 font-black">₹</span>
-                        <input
-                            type="number"
-                            value={anchor}
-                            onChange={(e) => setAnchor(e.target.value)}
-                            placeholder="0"
-                            className="bg-transparent text-lg font-black text-white w-24 outline-none text-right font-mono"
+                {/* MIDDLE SECTION: 2-Column Grid */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                    {/* Left Column: Chaos Control */}
+                    <div className="lg:col-span-1">
+                        <ChaosControl
+                            anchor={anchor}
+                            setAnchor={setAnchor}
+                            investments={investments}
+                            setInvestments={setInvestments}
+                            onCommit={fetchData}
+                            loading={loading}
                         />
-                        {suggestedAnchor > 0 && Math.abs(suggestedAnchor - anchor) > 100 && (
-                            <button
-                                onClick={() => setAnchor(suggestedAnchor)}
-                                className="ml-2 bg-yellow-500 text-black p-1 rounded-md shadow-lg hover:bg-yellow-400 transition-all animate-bounce"
-                                title={`Detected Fixed Costs: ₹${suggestedAnchor}`}
-                            >
-                                <Zap size={14} fill="currentColor" />
-                            </button>
-                        )}
                     </div>
-                </div>
 
-                {/* Assets Input */}
-                <div className="bg-stone-900/40 p-4 rounded-2xl border border-stone-800 flex items-center justify-between group hover:border-stone-700 transition-all">
-                    <div className="flex items-center gap-3">
-                        <div className="bg-blue-500/10 p-2 rounded-lg">
-                            <Briefcase size={16} className="text-blue-500" />
+                    {/* Right Column: 7-Day Momentum Analytics */}
+                    <div className="lg:col-span-2 glass-panel rounded-xl flex flex-col relative overflow-hidden">
+                        <div className="p-6 border-b border-stone-800/50 flex justify-between items-start">
+                            <div>
+                                <h3 className="text-sm font-black text-white tracking-widest mb-1">7-Day Momentum Analytics</h3>
+                                <p className="text-[10px] text-stone-500 font-bold uppercase tracking-widest">Daily burn rates vs. historical average</p>
+                            </div>
+                            <div className="flex gap-4 items-center">
+                                <div className="flex items-center gap-2">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-buf-cyan"></div>
+                                    <span className="text-[9px] text-stone-400 font-bold uppercase tracking-widest">Stable</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-buf-red"></div>
+                                    <span className="text-[9px] text-stone-400 font-bold uppercase tracking-widest">Volatility</span>
+                                </div>
+                            </div>
                         </div>
-                        <div>
-                            <p className="text-[10px] text-stone-500 font-bold uppercase tracking-widest">Liquid Assets</p>
-                            <p className="text-xs text-blue-500/50 font-mono">Safety Net</p>
+
+                        <div className="flex-1 p-6 relative min-h-[200px]">
+                            {/* Fake average line */}
+                            <div className="absolute top-1/2 left-6 right-6 border-t border-dashed border-stone-700/50 flex justify-start items-center">
+                                <span className="bg-buf-bg pr-2 text-[9px] text-stone-500 font-bold tracking-widest mt-[-14px]">AVG. ${data.daily_avg}</span>
+                            </div>
+                            <div className="h-full w-full">
+                                <SpendingGraph labels={graphData.labels} values={graphData.values} />
+                            </div>
                         </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <span className="text-stone-500 font-black">+</span>
-                        <input
-                            type="number"
-                            value={investments}
-                            onChange={(e) => setInvestments(e.target.value)}
-                            placeholder="0"
-                            className="bg-transparent text-lg font-black text-white w-24 outline-none text-right font-mono"
-                        />
-                    </div>
-                </div>
-            </div>
 
-            {/* ZONE 1: PRIMARY METRICS (Safe-to-Spend & Resilience) */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-                <div className={`lg:col-span-2 p-8 rounded-[2.5rem] border shadow-2xl flex flex-col items-center justify-center relative overflow-hidden transition-all duration-500 ${isStressed ? 'bg-red-950/30 border-red-500/30' : 'bg-stone-900/40 border-stone-800/60'}`}>
-                    <div className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-${isStressed ? 'red' : 'emerald'}-500/20 to-transparent opacity-50`}></div>
-
-
-                    <p className="text-stone-500 text-[10px] font-black uppercase tracking-[0.3em] mb-2">Safe-to-Spend Today</p>
-                    <h2 className="text-6xl font-black text-white tracking-tighter">₹{data.daily_limit}</h2>
-
-                    {/* Dynamic Resilience Label */}
-                    <div className={`mt-4 px-4 py-1.5 bg-stone-950 border rounded-full flex items-center gap-2 ${isStressed ? 'border-red-500/40' : 'border-stone-800/60'}`}>
-                        <div className={`w-2 h-2 rounded-full ${getResilienceLabel(displayResilience).color.replace('text-', 'bg-')}`}></div>
-                        <span className={`text-xs font-black uppercase tracking-wider ${getResilienceLabel(displayResilience).color}`}>
-                            {isStressed ? 'Simulating: ' : ''}{getResilienceLabel(displayResilience).label} • {displayResilience}%
-                        </span>
-                    </div>
-                    {/* Chaos Advice */}
-                    {isStressed && (
-                        <p className="text-[9px] text-red-300 mt-2 font-mono uppercase tracking-tight animate-pulse">
-                            Action Advice: Cut Discretionary Spend by 30% immediately.
-                        </p>
-                    )}
-                </div>
-                <div className={`p-6 rounded-[2.5rem] border flex flex-col items-center justify-center text-center transition-colors duration-500 ${isStressed ? 'bg-red-500/10 border-red-500/20' : 'bg-blue-600/5 border-blue-500/10'}`}>
-                    <Shield className={`mb-3 ${isStressed ? 'text-red-400' : 'text-blue-400'}`} size={32} />
-                    <h3 className={`text-4xl font-black tracking-tight ${isStressed ? 'text-red-400' : 'text-blue-400'}`}>
-                        {displayHorizon}
-                        <span className="text-sm opacity-50"> Days</span>
-                    </h3>
-                    <p className={`${isStressed ? 'text-red-400/60' : 'text-blue-400/60'} text-[10px] font-black uppercase tracking-widest`}>
-                        {isStressed ? 'Stressed Horizon' : 'True Survival Horizon'}
-                    </p>
-
-                </div>
-            </div>
-
-            {/* ZONE 2: ANALYTICS (Unified) */}
-            <div className="bg-stone-900/40 rounded-[2.5rem] border border-stone-800 p-6 mb-6">
-                <div className="flex justify-between items-center mb-4 px-2">
-                    <h3 className="text-xs font-black uppercase tracking-widest text-stone-500">Spending Trends</h3>
-                    <div className="flex gap-4">
-                        <div className="text-right">
-                            <p className="text-xl font-black text-white">₹{data.daily_avg}</p>
-                            <p className="text-[9px] text-stone-500 uppercase font-bold">Daily Avg</p>
-                        </div>
-                        <div className="text-right border-l border-stone-800 pl-4">
-                            <p className={`text-xl font-black ${data.burn_rate > 0 ? 'text-red-400' : 'text-emerald-400'}`}>{data.burn_rate}%</p>
-                            <p className="text-[9px] text-stone-500 uppercase font-bold">Volatility</p>
+                        {/* Bottom Data Row */}
+                        <div className="grid grid-cols-2 border-t border-stone-800/50">
+                            <div className="p-4 border-r border-stone-800/50 bg-stone-900/20 flex flex-col gap-1 hover:bg-stone-900/40 transition-colors">
+                                <span className="text-[9px] text-stone-500 font-bold uppercase tracking-widest">Weekly Median</span>
+                                <span className="text-xl font-black text-white tracking-tighter">₹{data.daily_avg}</span>
+                            </div>
+                            <div className="p-4 bg-buf-red/5 flex flex-col gap-1 hover:bg-buf-red/10 transition-colors">
+                                <span className="text-[9px] text-buf-red font-bold uppercase tracking-widest">Peak Volatility</span>
+                                <span className="text-xl font-black text-buf-red tracking-tighter">+{data.burn_rate}%</span>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div className="h-48">
-                    <SpendingGraph labels={graphData.labels} values={graphData.values} />
-                </div>
+
+                {/* ZONE 4: LIVE HISTORY & BULK UPLOAD */}
+                <HistoryList history={history} onUpload={handleBulkUpload} loading={loading} />
             </div>
-
-            {/* ZONE 3: ACTIONS & GOALS */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:order-none order-last">
-                <ActionZone
-                    form={form}
-                    setForm={setForm}
-                    anchor={anchor}
-                    setAnchor={setAnchor}
-                    investments={investments}
-                    setInvestments={setInvestments}
-                    suggestedAnchor={suggestedAnchor}
-                    onLog={handleManualLog}
-                    loading={loading}
-                />
-
-                {/* Freedom Goal Setter */}
-                <div className="h-full">
-                    <GoalSetter currentDailyLimit={data.daily_limit} />
-                </div>
-            </div>
-
-            {/* ZONE 4: LIVE HISTORY & BULK UPLOAD */}
-            <HistoryList history={history} onUpload={handleBulkUpload} loading={loading} />
         </div>
     );
 }

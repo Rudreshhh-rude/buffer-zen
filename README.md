@@ -1,4 +1,4 @@
-# BufferZen 🧘‍♂️🛡️
+# BufferZen
 
 > **"Don't just track your spending. Measure your survival."**
 
@@ -10,33 +10,33 @@ It answers the one question that actually matters: ***If everything goes wrong t
 
 ---
 
-## ✨ Unique Features
+##  Unique Features
 
-### ⚡ Chaos Mode (Stress Testing)
+###  Chaos Mode (Stress Testing)
 Most apps assume life is linear. BufferZen knows it isn't.
 -   **Simulator**: Toggle "Job Loss", "Market Crash", or "High Inflation" scenarios.
 -   **Instant Feedback**: Watch your "Survival Horizon" shrink in real-time.
 -   **Actionable Advice**: Get immediate cues on how to adapt (e.g., "Cut Discretionary Spend by 30%").
 
-### 🛡️ The "True" Horizon
+###  The "True" Horizon
 -   Translates your bank balance and liquid assets into **Days of Freedom**.
 -   Dynamic calculation based on your actual *burn rate*, not just your income.
 
-### ⚓ Smart Anchor
+###  Smart Anchor
 -   Automatically separates your **Cost of Existing** (Rent, EMI, Subscriptions) from your **Lifestyle Cost**.
 -   Helps you understand your "Baseline" vs. your "Choices".
 
-### 🥕 Freedom Goals
+###  Freedom Goals
 -   Gamifies your savings. Set a target (e.g., "Sabbatical").
 -   Calculates the **"Daily Sacrifice"**: *How much less do I need to spend today to be free in 6 months?*
 
-### 🗿 Zen Design (Stone Theme)
+###  Zen Design (Stone Theme)
 -   A calm, "Stone Grey" aesthetic designed to reduce financial anxiety.
 -   No clutter, no ads, no "buy this credit card" popups. Just your data.
 
 ---
 
-## 🛠️ The Tech Stack
+##  The Tech Stack
 
 This project uses a modern, high-performance stack:
 
@@ -52,7 +52,7 @@ This project uses a modern, high-performance stack:
 
 ---
 
-## 🚀 Getting Started
+##  Getting Started
 
 Follow these steps to run BufferZen locally.
 
@@ -98,14 +98,14 @@ npm run dev
 
 ---
 
-## 🔮 Roadmap
+##  Roadmap
 
 - [ ] **Real-Time Markets**: Integrate WebSocket for live stock/crypto ticker.
 - [ ] **Auth 2.0**: Replace demo login with Supabase/Auth0.
 - [ ] **Mobile Port**: React Native version for "Pulse Check" on the go.
 - [ ] **AI Insights**: LLM-powered suggestions based on spending patterns.
 
-## 🤝 Contributing
+##  Contributing
 
 This is a personal portfolio project, but contributions are welcome!
 1.  Fork the Project
@@ -114,12 +114,12 @@ This is a personal portfolio project, but contributions are welcome!
 4.  Push to the Branch (`git push origin feature/AmazingFeature`)
 5.  Open a Pull Request
 
-## 📄 License
+##  License
 
 Distributed under the MIT License. See `LICENSE` for more information.
 
 ---
 
 <p align="center">
-  Built with 🖤 and ☕ by <b>Rudresh/b>
+  Built with 🖤 and ☕ by <b>Rudresh</b>
 </p>

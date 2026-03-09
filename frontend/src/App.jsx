@@ -1,43 +1,33 @@
-import { useState, useEffect } from 'react';
-import { supabase } from './supabase';
-import AuthPage from "./Auth";
-import Dashboard from "./Dashboard";
+import { useState } from 'react';
+import Auth from './Auth';
+import Dashboard from './Dashboard';
+import Analytics from './Analytics';
+import Strategy from './Strategy';
 
-export default function App() {
+function App() {
   const [session, setSession] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [currentView, setCurrentView] = useState('dashboard');
 
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session);
-      setLoading(false);
-    });
+  const handleSignOut = () => {
+    setSession(null);
+    setCurrentView('dashboard');
+  };
 
-    const { data: listener } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        setSession(session);
-      }
-    );
-
-    return () => listener.subscription.unsubscribe();
-  }, []);
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
-        <p className="text-slate-400">Loading...</p>
-      </div>
-    );
-  }
+  const handleDemoLogin = () => {
+    setSession({ user: { id: 'demo-user-777', email: 'demo@bufferzen.com' } });
+  };
 
   if (!session) {
-    return <AuthPage />;
+    return <Auth onDemoLogin={handleDemoLogin} />;
   }
 
   return (
-    <Dashboard
-      user={session.user}
-      onSignOut={() => supabase.auth.signOut()}
-    />
+    <div className="min-h-screen bg-buf-bg text-stone-100 font-sans">
+      {currentView === 'dashboard' && <Dashboard user={session.user} onSignOut={handleSignOut} currentView={currentView} onViewChange={setCurrentView} />}
+      {currentView === 'analytics' && <Analytics currentView={currentView} onViewChange={setCurrentView} onSignOut={handleSignOut} />}
+      {currentView === 'strategy' && <Strategy currentView={currentView} onViewChange={setCurrentView} onSignOut={handleSignOut} />}
+    </div>
   );
 }
+
+export default App;

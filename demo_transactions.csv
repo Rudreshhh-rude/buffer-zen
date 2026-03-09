@@ -1,0 +1,14 @@
+date,amount,category,type,description
+2026-02-01,4500.0,Salary,Income,TechCorp Monthly Salary
+2026-02-02,1200.0,Housing,Expense,Apartment Rent
+2026-02-03,45.5,Utilities,Expense,Electric Bill
+2026-02-05,120.0,Groceries,Expense,Whole Foods Market
+2026-02-08,65.0,Transportation,Expense,Gas Station
+2026-02-10,35.0,Entertainment,Expense,Netflix & Spotify
+2026-02-12,85.0,Dining Out,Expense,Sushi Restaurant
+2026-02-15,150.0,Groceries,Expense,Trader Joes
+2026-02-18,220.0,Shopping,Expense,New Running Shoes
+2026-02-20,40.0,Transportation,Expense,Uber Rides
+2026-02-22,899.0,Electronics,Expense,New Monitor (Anomaly)
+2026-02-25,95.0,Groceries,Expense,Local Market
+2026-02-28,60.0,Dining Out,Expense,Coffee & Pastries

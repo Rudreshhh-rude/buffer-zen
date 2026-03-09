@@ -1,26 +1,33 @@
 @import "tailwindcss";
 
+@theme {
+    /* Deep Navy & Emerald Theme */
+    --color-buf-bg: #0f172a;
+    /* Rich, dark navy blue */
+    --color-buf-panel: #1e293b;
+    /* Slightly lighter navy for glass cards */
+    --color-buf-cyan: #10b981;
+    /* Shifted from cyan to a sharp Emerald Green */
+    --color-buf-red: #ef4444;
+    /* Brighter, more readable alert red */
+    --color-buf-green: #34d399;
+    /* Softer success green */
+    --color-buf-border: rgba(255, 255, 255, 0.08);
+    /* Crisp visible borders */
+
+    --font-sans: 'Inter', system-ui, sans-serif;
+}
+
 body {
-    background-image: none !important;
-    background-color: #020617 !important;
-    /* slate-950 */
+    background-color: var(--color-buf-bg) !important;
+    color: #e2e8f0;
+    font-family: var(--font-sans);
 }
 
-/* Safe Marquee Animation */
-@keyframes marquee {
-    0% {
-        transform: translateX(0);
+@layer utilities {
+    .glass-panel {
+        background-color: var(--color-buf-panel);
+        border: 1px solid var(--color-buf-border);
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
     }
-
-    100% {
-        transform: translateX(-50%);
-    }
-}
-
-.animate-marquee {
-    animation: marquee 30s linear infinite;
-}
-
-.animate-marquee:hover {
-    animation-play-state: paused;
 }

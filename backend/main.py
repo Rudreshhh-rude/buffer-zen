@@ -3,13 +3,13 @@ import re
 import io
 import calendar
 import logging
+import sqlite3
 import pandas as pd
 from datetime import datetime, timedelta
 from typing import Dict, Optional
 from fastapi import FastAPI, Query, HTTPException, APIRouter, File, UploadFile, Header
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field, validator
-from supabase import create_client
+from pydantic import BaseModel, Field
 from dotenv import load_dotenv
 from pathlib import Path
 from PIL import Image
@@ -26,25 +26,45 @@ if os.name == 'nt':
 # --- CONFIG ---
 load_dotenv(dotenv_path=Path('.') / '.env')
 
-url = os.getenv("SUPABASE_URL")
-key = os.getenv("SUPABASE_KEY")
+# --- SQLITE DATABASE SETUP ---
+DB_FILE = "bufferzen.db"
 
-if not url or not key:
-    raise ValueError("Missing SUPABASE_URL or SUPABASE_KEY in .env")
+def get_db_connection():
+    conn = sqlite3.connect(DB_FILE)
+    conn.row_factory = sqlite3.Row  # Returns rows as dictionaries
+    return conn
 
-supabase = create_client(url, key)
+def init_db():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS transactions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            date TEXT NOT NULL,
+            type TEXT NOT NULL,
+            category TEXT NOT NULL,
+            amount REAL NOT NULL,
+            description TEXT NOT NULL,
+            user_id TEXT NOT NULL
+        )
+    ''')
+    conn.commit()
+    conn.close()
+    logger.info("SQLite database initialized successfully.")
+
+init_db()
 
 # --- FASTAPI SETUP ---
-app = FastAPI(title="BufferZen Multi-User API", version="2.0.0")
+app = FastAPI(title="BufferZen Multi-User API - SQLite Edition", version="2.4.0")
 v1_router = APIRouter(prefix="/api/v1")
 
-ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "http://localhost:5173").split(",")
+ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "http://localhost:5173,http://localhost:5174").split(",")
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
-    allow_methods=["GET", "POST"],
+    allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["Content-Type", "Authorization"],
 )
 
@@ -53,14 +73,11 @@ class TransactionCreate(BaseModel):
     amount: float = Field(..., gt=0)
     type: str = Field(..., pattern="^(Income|Expense)$")
     description: str = Field(..., min_length=1, max_length=200)
-    user_id: str = Field(..., min_length=1)  # Required for multi-user
-    category: Optional[str] = None  # Optional - will auto-categorize if not provided
+    user_id: str = Field(..., min_length=1)
+    category: Optional[str] = None
 
 # --- SMART CATEGORIZATION ---
 def smart_categorize(description: str) -> str:
-    """
-    Automatically categorize transactions based on description keywords.
-    """
     desc = description.lower()
     
     category_mapping = {
@@ -80,11 +97,7 @@ def smart_categorize(description: str) -> str:
 
 # --- CORE CALCULATION ENGINE ---
 def calculate_metrics(df_data: list, fixed_costs: float) -> Dict:
-    """
-    Calculate budget metrics for a user based on their transaction history.
-    """
     if not df_data:
-        logger.warning("No transaction data provided")
         return {
             "daily_limit": 0,
             "survival_horizon": 0,
@@ -93,25 +106,25 @@ def calculate_metrics(df_data: list, fixed_costs: float) -> Dict:
             "burn_rate": 0,
             "resilience_score": 0,
             "volatility_score": "N/A",
-            "monthly_avg": 0
+            "monthly_avg": 0,
+            "limit_change_pct": 0.0,
+            "horizon_change": 0,
+            "resilience_change_pct": 0.0
         }
     
     df = pd.DataFrame(df_data)
     df['date'] = pd.to_datetime(df['date'])
     
-    # 1. BALANCE
     income_total = df[df['type'] == 'Income']['amount'].sum()
     expense_total = df[df['type'] == 'Expense']['amount'].sum()
     current_balance = income_total - expense_total
     
-    # 2. DAILY AVERAGE & BURN RATE
     expenses_df = df[df['type'] == 'Expense']
     
     if not expenses_df.empty:
         date_range = (expenses_df['date'].max() - expenses_df['date'].min()).days + 1
         daily_avg = expense_total / max(date_range, 1)
         
-        # Burn rate (last 7 vs previous 7 days)
         seven_days_ago = datetime.now() - timedelta(days=7)
         fourteen_days_ago = datetime.now() - timedelta(days=14)
         
@@ -126,9 +139,8 @@ def calculate_metrics(df_data: list, fixed_costs: float) -> Dict:
         daily_avg = 0
         burn_rate = 0
     
-    # 3. MONTHLY INCOME & VOLATILITY
     monthly_income = df[df['type'] == 'Income']\
-        .groupby(pd.Grouper(key='date', freq='M'))['amount']\
+        .groupby(pd.Grouper(key='date', freq='ME'))['amount']\
         .sum()
     
     avg_monthly_income = monthly_income.mean() if not monthly_income.empty else 0
@@ -137,20 +149,43 @@ def calculate_metrics(df_data: list, fixed_costs: float) -> Dict:
     cv = (income_volatility / avg_monthly_income) if avg_monthly_income > 0 else 0
     volatility_score = "High" if cv > 0.3 else "Low"
     
-    # 4. SAFE-TO-SPEND
     days_in_month = calendar.monthrange(datetime.now().year, datetime.now().month)[1]
     
-    # Simple formula: (Balance - Fixed Costs) / Days Remaining
     disposable = current_balance - fixed_costs
     daily_safe_limit = max(0, disposable / days_in_month)
     
-    # 5. SURVIVAL HORIZON
     daily_fixed_burn = fixed_costs / days_in_month
     survival_days = (current_balance / daily_fixed_burn) if daily_fixed_burn > 0 and current_balance > 0 else 0
     
-    # 6. RESILIENCE SCORE (0-100)
-    # Formula: Based on survival days + balance ratio
     resilience_score = int(min(100, (survival_days * 2) + (20 if current_balance > fixed_costs else 0)))
+    
+    # --- MOMENTUM CALCULATIONS (Last 30 days vs Previous 30 days) ---
+    thirty_days_ago = datetime.now() - timedelta(days=30)
+    sixty_days_ago = datetime.now() - timedelta(days=60)
+    
+    # Current 30 days stats
+    current_30_df = df[df['date'] >= thirty_days_ago]
+    current_income = current_30_df[current_30_df['type'] == 'Income']['amount'].sum()
+    current_expense = current_30_df[current_30_df['type'] == 'Expense']['amount'].sum()
+    current_bal_30 = current_income - current_expense
+    current_limit_30 = max(0, (current_bal_30 - fixed_costs) / days_in_month)
+    current_horizon_30 = (current_bal_30 / daily_fixed_burn) if daily_fixed_burn > 0 and current_bal_30 > 0 else 0
+    current_resilience_30 = int(min(100, (current_horizon_30 * 2) + (20 if current_bal_30 > fixed_costs else 0)))
+    
+    # Previous 30 days stats
+    prev_30_df = df[(df['date'] >= sixty_days_ago) & (df['date'] < thirty_days_ago)]
+    prev_income = prev_30_df[prev_30_df['type'] == 'Income']['amount'].sum()
+    prev_expense = prev_30_df[prev_30_df['type'] == 'Expense']['amount'].sum()
+    prev_bal_30 = prev_income - prev_expense
+    prev_limit_30 = max(0, (prev_bal_30 - fixed_costs) / days_in_month)
+    prev_horizon_30 = (prev_bal_30 / daily_fixed_burn) if daily_fixed_burn > 0 and prev_bal_30 > 0 else 0
+    prev_resilience_30 = int(min(100, (prev_horizon_30 * 2) + (20 if prev_bal_30 > fixed_costs else 0)))
+    
+    # Deltas
+    limit_change_pct = ((current_limit_30 - prev_limit_30) / prev_limit_30 * 100) if prev_limit_30 > 0 else (100.0 if current_limit_30 > 0 else 0.0)
+    horizon_change = int(current_horizon_30 - prev_horizon_30)
+    resilience_change_pct = ((current_resilience_30 - prev_resilience_30) / prev_resilience_30 * 100) if prev_resilience_30 > 0 else (100.0 if current_resilience_30 > 0 else 0.0)
+
     
     return {
         "daily_limit": round(daily_safe_limit, 2),
@@ -158,9 +193,12 @@ def calculate_metrics(df_data: list, fixed_costs: float) -> Dict:
         "current_balance": round(current_balance, 2),
         "daily_avg": round(daily_avg, 2),
         "burn_rate": round(burn_rate, 1),
-        "resilience_score": resilience_score,
+        "resilience_score": max(0, resilience_score),
         "volatility_score": volatility_score,
-        "monthly_avg": round(avg_monthly_income, 2)
+        "monthly_avg": round(avg_monthly_income, 2),
+        "limit_change_pct": round(limit_change_pct, 1),
+        "horizon_change": horizon_change,
+        "resilience_change_pct": round(resilience_change_pct, 1)
     }
 
 # --- API ENDPOINTS ---
@@ -170,48 +208,42 @@ def get_budget(
     user_id: str = Query(..., min_length=1),
     fixed_costs: float = Query(..., ge=0, le=1000000)
 ):
-    """
-    Get budget metrics for a specific user.
-    Requires user_id to filter transactions.
-    """
-    logger.info(f"Budget request for user: {user_id}, fixed_costs: {fixed_costs}")
-    
     try:
-        # Fetch last 6 months of user's transactions
         six_months_ago = (datetime.now() - timedelta(days=180)).strftime("%Y-%m-%d")
-        response = supabase.table("transactions")\
-            .select("*")\
-            .eq("user_id", user_id)\
-            .gte("date", six_months_ago)\
-            .order("date", desc=True)\
-            .execute()
+        conn = get_db_connection()
+        cursor = conn.cursor()
         
-        data = calculate_metrics(response.data or [], fixed_costs)
+        cursor.execute(
+            "SELECT * FROM transactions WHERE user_id = ? AND date >= ? ORDER BY date DESC",
+            (user_id, six_months_ago)
+        )
+        rows = cursor.fetchall()
+        conn.close()
         
-        if not response.data:
-            logger.warning(f"No transactions found for user: {user_id}")
-        
+        data = calculate_metrics([dict(r) for r in rows], fixed_costs)
         return {"success": True, "data": data}
         
     except Exception as e:
         logger.error(f"Budget calculation error: {e}", exc_info=True)
         raise HTTPException(status_code=503, detail="Failed to calculate budget")
 
-
 @v1_router.get("/analytics")
 def get_analytics(user_id: str = Query(..., min_length=1)):
-    """
-    Get 7-day spending analytics for a specific user.
-    """
     try:
         thirty_days_ago = (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d")
-        response = supabase.table("transactions")\
-            .select("*")\
-            .eq("user_id", user_id)\
-            .gte("date", thirty_days_ago)\
-            .execute()
+        conn = get_db_connection()
+        cursor = conn.cursor()
         
-        if not response.data:
+        cursor.execute(
+            "SELECT * FROM transactions WHERE user_id = ? AND date >= ?",
+            (user_id, thirty_days_ago)
+        )
+        rows = cursor.fetchall()
+        conn.close()
+        
+        df_data = [dict(r) for r in rows]
+        
+        if not df_data:
             return {
                 "success": True,
                 "labels": [],
@@ -219,28 +251,24 @@ def get_analytics(user_id: str = Query(..., min_length=1)):
                 "stats": {"daily_avg": 0, "burn_rate": 0}
             }
         
-        df = pd.DataFrame(response.data)
+        df = pd.DataFrame(df_data)
         df['date'] = pd.to_datetime(df['date'])
         
-        # Get last 7 days
         seven_days_ago = datetime.now() - timedelta(days=7)
         recent = df[(df['type'] == 'Expense') & (df['date'] >= seven_days_ago)]
         
         daily_spending = recent.groupby(recent['date'].dt.strftime('%Y-%m-%d'))['amount'].sum()
         
-        # Generate labels for last 7 days
         last_7_days = [(datetime.now() - timedelta(days=i)).strftime('%Y-%m-%d') 
                        for i in range(6, -1, -1)]
         
         values = [daily_spending.get(day, 0) for day in last_7_days]
         
-        # Calculate stats
         all_expenses = df[df['type'] == 'Expense']
         total_expenses = all_expenses['amount'].sum()
         days_count = (df['date'].max() - df['date'].min()).days + 1
         daily_avg = total_expenses / max(days_count, 1)
         
-        # Burn rate
         fourteen_days_ago = datetime.now() - timedelta(days=14)
         last_week = all_expenses[all_expenses['date'] >= seven_days_ago]['amount'].sum()
         prev_week = all_expenses[
@@ -262,77 +290,56 @@ def get_analytics(user_id: str = Query(..., min_length=1)):
         
     except Exception as e:
         logger.error(f"Analytics error: {e}", exc_info=True)
-        return {
-            "success": False,
-            "labels": [],
-            "values": [],
-            "stats": {"daily_avg": 0, "burn_rate": 0}
-        }
-
+        return {"success": False, "labels": [], "values": [], "stats": {"daily_avg": 0, "burn_rate": 0}}
 
 @v1_router.get("/transactions/recent")
 def get_recent_transactions(user_id: str = Query(..., min_length=1)):
-    """
-    Get last 10 transactions for a specific user.
-    """
     try:
-        response = supabase.table("transactions")\
-            .select("*")\
-            .eq("user_id", user_id)\
-            .order("date", desc=True)\
-            .limit(10)\
-            .execute()
-        
-        return {"success": True, "data": response.data or []}
-        
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT * FROM transactions WHERE user_id = ? ORDER BY date DESC, id DESC LIMIT 10",
+            (user_id,)
+        )
+        rows = cursor.fetchall()
+        conn.close()
+        return {"success": True, "data": [dict(r) for r in rows]}
     except Exception as e:
         logger.error(f"Recent transactions error: {e}", exc_info=True)
         return {"success": False, "data": []}
 
-
 @v1_router.post("/transactions")
 def add_transaction(item: TransactionCreate):
-    """
-    Add a new transaction for a user with smart categorization.
-    """
-    logger.info(f"Adding transaction for user: {item.user_id}, {item.type} ₹{item.amount}")
-    
-    # Auto-categorize if not provided
     category = item.category if item.category else smart_categorize(item.description)
-    
-    new_row = {
-        "date": datetime.now().strftime("%Y-%m-%d"),
-        "type": item.type,
-        "category": category,
-        "amount": item.amount,
-        "description": item.description,
-        "user_id": item.user_id
-    }
+    date_str = datetime.now().strftime("%Y-%m-%d")
     
     try:
-        response = supabase.table("transactions").insert(new_row).execute()
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute(
+            "INSERT INTO transactions (date, type, category, amount, description, user_id) VALUES (?, ?, ?, ?, ?, ?)",
+            (date_str, item.type, category, item.amount, item.description, item.user_id)
+        )
+        new_id = cursor.lastrowid
+        conn.commit()
         
-        if not response.data:
-            raise HTTPException(status_code=500, detail="Insert failed")
+        cursor.execute("SELECT * FROM transactions WHERE id = ?", (new_id,))
+        new_row = dict(cursor.fetchone())
+        conn.close()
         
-        logger.info(f"Transaction added successfully, category: {category}")
-        return {"success": True, "data": response.data[0]}
-        
+        return {"success": True, "data": new_row}
     except Exception as e:
         logger.error(f"Insert error: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Failed to add transaction")
 
-
 @v1_router.post("/predict-transaction")
 async def predict_from_image(file: UploadFile = File(...)):
-    """Extract amount from receipt using OCR."""
     allowed_types = ["image/jpeg", "image/png", "image/jpg"]
     if file.content_type not in allowed_types:
         raise HTTPException(status_code=400, detail="Invalid file type")
     
     try:
         content = await file.read()
-        
         if len(content) > 5 * 1024 * 1024:
             raise HTTPException(status_code=400, detail="File too large (max 5MB)")
         
@@ -343,22 +350,12 @@ async def predict_from_image(file: UploadFile = File(...)):
         amount = float(match.group(1).replace(',', '')) if match else 0.0
         
         return {"success": True, "amount": amount}
-        
-    except (IOError, OSError):
-        raise HTTPException(status_code=400, detail="Invalid image")
     except Exception as e:
         logger.error(f"OCR error: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="OCR failed")
 
-
 @v1_router.post("/upload-statement")
-async def upload_statement(
-    file: UploadFile = File(...),
-    user_id: str = Query(..., min_length=1)
-):
-    """
-    Upload CSV bank statement and import transactions for a specific user.
-    """
+async def upload_statement(file: UploadFile = File(...), user_id: str = Query(..., min_length=1)):
     if not file.filename.endswith('.csv'):
         raise HTTPException(status_code=400, detail="Please upload CSV")
     
@@ -366,12 +363,8 @@ async def upload_statement(
         content = await file.read()
         df = pd.read_csv(io.BytesIO(content))
         
-        logger.info(f"CSV uploaded for user {user_id}: {len(df)} rows")
-        
-        # Normalize columns
         df.columns = [c.strip().lower().replace(' ', '_') for c in df.columns]
         
-        # Find columns
         date_col = next((c for c in df.columns if 'date' in c), None)
         amount_col = next((c for c in df.columns if any(x in c for x in ['amount', 'debit', 'credit'])), None)
         desc_col = next((c for c in df.columns if any(x in c for x in ['description', 'narration', 'details'])), None)
@@ -380,7 +373,6 @@ async def upload_statement(
         if not all([date_col, amount_col]):
             raise HTTPException(status_code=400, detail=f"Missing columns. Found: {list(df.columns)}")
         
-        # Clean data
         cleaned_data = []
         for _, row in df.iterrows():
             try:
@@ -396,50 +388,32 @@ async def upload_statement(
                 else:
                     trans_type = "Expense"
                 
-                # Smart categorize
                 category = smart_categorize(description)
                 
-                cleaned_data.append({
-                    "date": date_str,
-                    "amount": amount,
-                    "type": trans_type,
-                    "description": description,
-                    "category": category,
-                    "user_id": user_id  # Attach to user
-                })
-                
+                cleaned_data.append((date_str, trans_type, category, amount, description, user_id))
             except Exception:
                 continue
         
         if not cleaned_data:
             raise HTTPException(status_code=400, detail="No valid transactions")
         
-        # Bulk insert
-        supabase.table("transactions").insert(cleaned_data).execute()
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.executemany(
+            "INSERT INTO transactions (date, type, category, amount, description, user_id) VALUES (?, ?, ?, ?, ?, ?)",
+            cleaned_data
+        )
+        conn.commit()
+        conn.close()
         
-        logger.info(f"Imported {len(cleaned_data)} transactions for user {user_id}")
-        return {
-            "success": True,
-            "count": len(cleaned_data),
-            "message": f"Imported {len(cleaned_data)} transactions"
-        }
-        
-    except HTTPException:
-        raise
+        return {"success": True, "count": len(cleaned_data), "message": f"Imported {len(cleaned_data)} transactions"}
     except Exception as e:
         logger.error(f"CSV import error: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Import failed: {str(e)}")
 
-
 @app.get("/")
 def health_check():
-    """API health check."""
-    return {
-        "status": "BufferZen Multi-User API running",
-        "version": "2.0.0",
-        "timestamp": datetime.now().isoformat()
-    }
-
+    return {"status": "BufferZen Local DB API running", "version": "2.1.0", "timestamp": datetime.now().isoformat()}
 
 app.include_router(v1_router)
 
